@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests, json, pymysql
 from pymysql import OperationalError, IntegrityError
+from warnings import filterwarnings
 
 class CredentialsNotFoundError(Exception):
 	pass
@@ -58,6 +59,7 @@ def scrape_and_retrieve_data():
 
 def scrape_and_store_data():
 	headers, data = scrape_and_retrieve_data()
+	filterwarnings('ignore', category = pymysql.Warning)
 	connection = globals()["connection"]
 	cursor = connection.cursor()
 
