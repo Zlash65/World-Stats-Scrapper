@@ -3,6 +3,7 @@ import requests, json, pymysql
 from pymysql import OperationalError, IntegrityError
 from warnings import filterwarnings
 import matplotlib.pyplot as plt
+from helper import rounded
 
 class CredentialsNotFoundError(Exception):
 	pass
