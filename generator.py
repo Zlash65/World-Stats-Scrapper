@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests, json, pymysql
 from pymysql import OperationalError, IntegrityError
 from warnings import filterwarnings
+import matplotlib.pyplot as plt
 
 class CredentialsNotFoundError(Exception):
 	pass
@@ -102,6 +103,23 @@ def generate_world_stats():
 	result = cursor.fetchall()
 	world_info = [d for d in result if d['Country or Region Name']=="World Total (Est.)"][0]
 	result.remove(world_info)
+
+	plot_internet_users_chart(result, world_info)
+
+def plot_internet_users_chart(result, world_info):
+	labels, sizes = [], []
+	for d in result:
+		size = rounded(float(d["Internet Users"])*100/float(world_info["Internet Users"]), 2)
+		labels.append(d["Country or Region Name"] + " " + str(size) + "%")
+		sizes.append(size)
+
+	# Plot and save the pie chart
+	plt.figure(figsize=(6,6))
+	patches, texts = plt.pie(sizes, shadow=False, startangle=140)
+	plt.legend(patches, labels, loc="best")
+	# plt.axis('equal')
+	plt.suptitle('Region wise Internet Users in the World', fontsize=15)
+	plt.savefig("html/world_internet_user_stat.png")
 
 if __name__ == "__main__":
 	# validate credentials for database
