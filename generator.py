@@ -53,7 +53,8 @@ def scrape_and_retrieve_data():
 	for i in data_table:
 		for j, k in enumerate(i.find_all('tr')):
 			if j == 0: continue # ignore headers row
-			temp = list(filter(None, k.text.replace('\r\n%', ' %').replace('\r\n', '').split('\n')))
+			temp = list(filter(None, k.text.replace("\r\n", " ").replace('%', '').split('\n')))
+			temp = [k.replace('n/a', '0').replace('N/A', '0').replace('<', '').strip() for k in temp]
 			if temp[1]=="--": temp[1] = temp[0]
 			data.append(temp)
 
@@ -70,8 +71,8 @@ def scrape_and_store_data():
 	cursor.execute('''create table if not exists world_stats
 		(
 			`%s` varchar(30), `%s` varchar(30) primary key not null,
-			`%s` varchar(30), `%s` varchar(30), `%s` varchar(30),
-			`%s` varchar(10), `%s` varchar(10)
+			`%s` bigint, `%s` bigint, `%s` bigint,
+			`%s` tinyint, `%s` varchar(10)
 		)
 	''' % tuple(headers))
 
@@ -91,7 +92,8 @@ def scrape_and_store_data():
 			try:
 				cursor.execute(query)
 			except IntegrityError:
-				continue
+				cursor.execute(''' delete from world_stats where `Symbol` = "{0}" '''.format(row[1]))
+				cursor.execute(query)
 
 	connection.commit()
 
