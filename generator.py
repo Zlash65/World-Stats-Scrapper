@@ -1,5 +1,6 @@
+from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
-import requests, json, pymysql
+import requests, json, pymysql, os
 from pymysql import OperationalError, IntegrityError
 from warnings import filterwarnings
 import matplotlib.pyplot as plt
@@ -139,6 +140,13 @@ def plot_penetration_chart(result):
 
 	plt.suptitle('Region wise Penetration Rate', fontsize=15)
 	plt.savefig("html/region_wise_penetration_rate.png")
+
+def generate_output_html():
+	# setting up jinja templating
+	root = os.path.dirname(os.path.abspath(__file__))
+	templates_dir = os.path.join(root, 'templates')
+	env = Environment(loader = FileSystemLoader(templates_dir))
+	template = env.get_template('index.html')
 
 if __name__ == "__main__":
 	# validate credentials for database
