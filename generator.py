@@ -106,6 +106,7 @@ def generate_world_stats():
 	result.remove(world_info)
 
 	plot_internet_users_chart(result, world_info)
+	plot_penetration_chart(result)
 
 def plot_internet_users_chart(result, world_info):
 	labels, sizes = [], []
@@ -121,6 +122,23 @@ def plot_internet_users_chart(result, world_info):
 	# plt.axis('equal')
 	plt.suptitle('Region wise Internet Users in the World', fontsize=15)
 	plt.savefig("html/world_internet_user_stat.png")
+
+def plot_penetration_chart(result):
+	labels, sizes = [], []
+	for d in result:
+		size = rounded(float(d["Internet Users"])*100/float(d["Population (2018 est.)"]), 2)
+		labels.append(d["Country or Region Name"])
+		sizes.append(size)
+
+	# Plot and save the bar chart
+	plt.figure(figsize=(20,8))
+	bars = plt.bar(labels, sizes, align='center')
+	for bar in bars:
+		yval = bar.get_height()
+		plt.text(bar.get_x(), yval + 1, yval)
+
+	plt.suptitle('Region wise Penetration Rate', fontsize=15)
+	plt.savefig("html/region_wise_penetration_rate.png")
 
 if __name__ == "__main__":
 	# validate credentials for database
