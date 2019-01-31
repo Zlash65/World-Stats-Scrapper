@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
-import requests, json
-import pymysql
-from pymysql import OperationalError
+import requests, json, pymysql
+from pymysql import OperationalError, IntegrityError
 
 class CredentialsNotFoundError(Exception):
 	pass
@@ -57,6 +56,43 @@ def scrape_and_retrieve_data():
 	globals()["headers"] = headers
 	return headers, data
 
+def scrape_and_store_data():
+	headers, data = scrape_and_retrieve_data()
+	connection = globals()["connection"]
+	cursor = connection.cursor()
+
+	# create table if not exist
+	cursor.execute('''create table if not exists world_stats
+		(
+			`%s` varchar(30), `%s` varchar(30) primary key not null,
+			`%s` varchar(30), `%s` varchar(30), `%s` varchar(30),
+			`%s` varchar(10), `%s` varchar(10)
+		)
+	''' % tuple(headers))
+
+	cursor.execute('''select * from world_stats limit 1''')
+	results = cursor.fetchall()
+
+	# insert data only if not already added
+	if not results:
+		connection.autocommit(False)
+		hdrs = "(`{0}`, `{1}`, `{2}`, `{3}`, `{4}`, `{5}`, `{6}`)".format(*headers)
+		for row in data[0:len(data)-1]:
+			row = [float(d.replace(',', '')) if d.replace(',', '').isdigit() else d for d in row]
+			query = '''insert into world_stats {0}
+				values("{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}")
+			'''.format(hdrs, *[d.encode('utf-8') if type(d) in [str, unicode] else d for d in row])
+
+			try:
+				cursor.execute(query)
+			except IntegrityError:
+				continue
+
+	connection.commit()
+
 if __name__ == "__main__":
 	# validate credentials for database
 	validate_db_credentials()
+
+	# store data in database
+	scrape_and_store_data()
