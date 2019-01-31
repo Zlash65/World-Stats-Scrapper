@@ -1,6 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
-import requests, json, pymysql, os
+import requests, json, pymysql, os, webbrowser
 from pymysql import OperationalError, IntegrityError
 from warnings import filterwarnings
 import matplotlib.pyplot as plt
@@ -176,3 +176,7 @@ if __name__ == "__main__":
 
 	# generate world stats
 	generate_world_stats()
+
+	# open the file in browser
+	url_to_open = "file://{0}".format(generate_output_html())
+	webbrowser.open(url_to_open)
