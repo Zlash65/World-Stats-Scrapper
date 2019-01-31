@@ -148,6 +148,25 @@ def generate_output_html():
 	env = Environment(loader = FileSystemLoader(templates_dir))
 	template = env.get_template('index.html')
 
+	# saving the data scrapped onto a new file using the jinja template
+	file_path = os.path.join(root, 'html', 'index.html')
+	with open(file_path, 'w') as file_obj:
+		file_obj.write(template.render(
+			title = "World Stats",
+			figure1 = {
+				"info": "Calculated as the ratio of population of a region that uses internet to the total world population of internet users.",
+				"image": "world_internet_user_stat.png",
+				"alt": "World Internet User Stat"
+			},
+			figure2 = {
+				"info": "Calculated as the ratio of population of a region that uses internet to the total population of that region.",
+				"image": "region_wise_penetration_rate.png",
+				"alt": "Region Wise Penetration rate"
+			}
+		))
+
+	return file_path
+
 if __name__ == "__main__":
 	# validate credentials for database
 	validate_db_credentials()
