@@ -92,9 +92,23 @@ def scrape_and_store_data():
 
 	connection.commit()
 
+def generate_world_stats():
+	connection = globals()['connection']
+	cursor = connection.cursor()
+
+	cursor.execute('''select * from world_stats
+		where `Country or Region Name`=`Symbol`''')
+
+	result = cursor.fetchall()
+	world_info = [d for d in result if d['Country or Region Name']=="World Total (Est.)"][0]
+	result.remove(world_info)
+
 if __name__ == "__main__":
 	# validate credentials for database
 	validate_db_credentials()
 
 	# store data in database
 	scrape_and_store_data()
+
+	# generate world stats
+	generate_world_stats()
